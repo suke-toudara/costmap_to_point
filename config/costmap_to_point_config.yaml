@@ -1,0 +1,4 @@
+costmap_to_point:
+  ros__parameters:
+    grid_map_topic     : /perception/grid_map
+    current_pose_topic : /current_pose

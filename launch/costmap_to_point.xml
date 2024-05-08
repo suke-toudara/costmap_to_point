@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+  <node_container pkg="rclcpp_components" exec="component_container" name="costmap_to_point_container" namespace="costmap_to_point" >
+    <composable_node pkg="costmap_to_point" plugin="costmap_to_point::CostmapToPointComponent" name="costmap_to_point_node" namespace="costmap_to_point">
+      <param from="$(find-pkg-share costmap_to_point)/config/costmap_to_point_config.yaml" />
+    </composable_node>
+  </node_container>
+</launch>
