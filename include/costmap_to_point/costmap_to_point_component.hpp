@@ -1,3 +1,6 @@
+#ifndef COSTMAP_TO_POINT_HPP_
+#define COSTMAP_TO_POINT_HPP_
+
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <memory>
 #include <chrono>
@@ -23,10 +26,11 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr ideal_scan_pub_;
   rclcpp::Subscription<grid_map_msgs::msg::GridMap>::SharedPtr grid_map_sub_;
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr current_pose_sub_;
-  void GridmapCallback(const grid_map_msgs::msg::GridMap::SharedPtr msg);
-  void CurrentPoseCallback(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
+  void gridmap_callback(const grid_map_msgs::msg::GridMap::SharedPtr msg);
+  void current_pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
 
   geometry_msgs::msg::Pose current_pose_;
   int serch_range_radius = 50; 
 };
 }  // namespace costmap_to_point
+#endif

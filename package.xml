@@ -8,6 +8,7 @@
    <license>Apache-2.0</license>
    
    <buildtool_depend>ament_cmake</buildtool_depend>
+   <build_depend>grid_map_cmake_helpers</build_depend>
    <depend>ament_cmake_auto</depend>
    <depend>rclcpp</depend>
    <depend>rclcpp_components</depend>
