@@ -21,7 +21,7 @@ CostmapToPointComponent::CostmapToPointComponent(const rclcpp::NodeOptions & opt
   // param
   std::string grid_map_topic;
   std::string current_pose_topic_;
-  declare_parameter<std::string>("grid_map_topic", "/perception/grid_map");
+  declare_parameter<std::string>("grid_map_topic", "/grid_map");
   get_parameter("grid_map_topic", grid_map_topic);
   declare_parameter<std::string>("current_pose_topic", "/current_pose");
   get_parameter("current_pose_topic", current_pose_topic_);
@@ -52,12 +52,12 @@ void CostmapToPointComponent::gridmap_callback(const grid_map_msgs::msg::GridMap
 
   auto ideal_laser_scan = sensor_msgs::msg::LaserScan();
   ideal_laser_scan.header.stamp = this->now();
-  ideal_laser_scan.header.frame_id = "wamv/wamv/base_link";
+  ideal_laser_scan.header.frame_id = "base_link";
   ideal_laser_scan.angle_min = 0.0;
   ideal_laser_scan.angle_max = 2 * M_PI;
   ideal_laser_scan.angle_increment = resolution;
   ideal_laser_scan.range_min = 0.0;
-  ideal_laser_scan.range_max = search_radius_grid * input_map.getLength().x();
+  ideal_laser_scan.range_max = 100.0; //search_radius_grid * input_map.getLength().x();
   ideal_laser_scan.ranges.resize(num_ranges);
   ideal_laser_scan.intensities.resize(num_ranges, 100.0);
   for (int i = 0; i < num_ranges; ++i) {
@@ -66,19 +66,23 @@ void CostmapToPointComponent::gridmap_callback(const grid_map_msgs::msg::GridMap
                                 current_pos.y() + search_radius_grid * std::sin(angle));
     double dist = 0.0;
     for (grid_map::LineIterator iterator(input_map, current_pos, search_end); !iterator.isPastEnd(); ++iterator) {
-      if (input_map.at("base_link", *iterator) >= 0.8) {
-        dist = std::hypot((*iterator).x() - current_pos.x(), (*iterator).y() - current_pos.y());
-        break;
+      if (input_map.at("combined", *iterator) <= 0.5) {
+      }else{
+        // dist = std::hypot((*iterator).x() - current_pos.x(), (*iterator).y() - current_pos.y())*resolution;
+        dist = std::hypot((*iterator).x()*input_map.getResolution(),(*iterator).y()*input_map.getResolution());
+        RCLCPP_INFO(get_logger(),"dist_x: %d",(*iterator).x());
+        RCLCPP_INFO(get_logger(),"dist_y: %d",(*iterator).y());
+        RCLCPP_INFO(get_logger(),"getResolution: %f",input_map.getResolution());
       }
     }
     ideal_laser_scan.ranges[i] = dist;
+    ideal_laser_scan.intensities[i] = 100.0;
   }
   ideal_scan_pub_->publish(ideal_laser_scan);
 }
 
 void CostmapToPointComponent::current_pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
 {
-  RCLCPP_INFO(get_logger(), "Publishing");
   current_pose_ = msg->pose;
 }
 }  // namespace costmap_to_point
